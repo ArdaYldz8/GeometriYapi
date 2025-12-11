@@ -1,24 +1,35 @@
 // ============================================
 // ADMIN PANEL JAVASCRIPT - Geometri YAPI
+// Netlify Functions Version with JWT Auth
 // ============================================
 
-const API_BASE = '';
+const API_BASE = '/.netlify/functions';
 let contentData = null;
 let currentImageTarget = null;
+let authToken = null;
 
 // ============================================
 // INITIALIZATION
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Load token from localStorage
+    authToken = localStorage.getItem('adminToken');
     checkAuth();
     setupEventListeners();
 });
 
 async function checkAuth() {
+    if (!authToken) {
+        showLogin();
+        return;
+    }
+
     try {
-        const response = await fetch(`${API_BASE}/api/check-auth`, {
-            credentials: 'include'
+        const response = await fetch(`${API_BASE}/check-auth`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
         });
         const data = await response.json();
 
@@ -27,6 +38,8 @@ async function checkAuth() {
             loadContent();
             loadImages();
         } else {
+            localStorage.removeItem('adminToken');
+            authToken = null;
             showLogin();
         }
     } catch (error) {
@@ -104,19 +117,23 @@ async function handleLogin(e) {
     const errorEl = document.getElementById('loginError');
 
     try {
-        const response = await fetch(`${API_BASE}/api/login`, {
+        const response = await fetch(`${API_BASE}/auth`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
             body: JSON.stringify({ username, password })
         });
 
         const data = await response.json();
 
-        if (data.success) {
+        if (data.success && data.token) {
+            // Store JWT token
+            authToken = data.token;
+            localStorage.setItem('adminToken', authToken);
+
             showDashboard();
             loadContent();
             loadImages();
+            errorEl.classList.remove('show');
         } else {
             errorEl.textContent = data.error || 'Giriş başarısız!';
             errorEl.classList.add('show');
@@ -127,15 +144,10 @@ async function handleLogin(e) {
     }
 }
 
-async function handleLogout() {
-    try {
-        await fetch(`${API_BASE}/api/logout`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-    } catch (error) {
-        console.error('Logout error:', error);
-    }
+function handleLogout() {
+    // Clear token
+    localStorage.removeItem('adminToken');
+    authToken = null;
     showLogin();
 }
 
@@ -177,7 +189,7 @@ function handleNavigation(e) {
 
 async function loadContent() {
     try {
-        const response = await fetch(`${API_BASE}/api/content`);
+        const response = await fetch(`${API_BASE}/content`);
         contentData = await response.json();
         populateFields();
         renderProjects();
@@ -233,16 +245,22 @@ async function saveContent() {
     });
 
     // Collect projects
-    contentData.projeler.items = collectProjects();
+    if (contentData.projeler) {
+        contentData.projeler.items = collectProjects();
+    }
 
     // Collect stats
-    contentData.kurumsal.stats = collectStats();
+    if (contentData.kurumsal) {
+        contentData.kurumsal.stats = collectStats();
+    }
 
     try {
-        const response = await fetch(`${API_BASE}/api/content`, {
+        const response = await fetch(`${API_BASE}/content`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
             body: JSON.stringify(contentData)
         });
 
@@ -332,6 +350,7 @@ function collectProjects() {
 }
 
 function addProject() {
+    if (!contentData.projeler) contentData.projeler = { items: [] };
     if (!contentData.projeler.items) contentData.projeler.items = [];
 
     contentData.projeler.items.push({
@@ -403,6 +422,7 @@ function collectStats() {
 }
 
 function addStat() {
+    if (!contentData.kurumsal) contentData.kurumsal = { stats: [] };
     if (!contentData.kurumsal.stats) contentData.kurumsal.stats = [];
 
     contentData.kurumsal.stats.push({
@@ -426,8 +446,10 @@ function deleteStat(index) {
 
 async function loadImages() {
     try {
-        const response = await fetch(`${API_BASE}/api/images`, {
-            credentials: 'include'
+        const response = await fetch(`${API_BASE}/images`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
         });
         const images = await response.json();
 
@@ -450,7 +472,7 @@ function renderImageGrid(containerId, images, showDelete) {
         div.innerHTML = `
             <img src="${image.path}" alt="${image.name}">
             <div class="image-overlay">${image.name}</div>
-            ${showDelete ? `
+            ${showDelete && image.folder === 'uploads' ? `
                 <button class="delete-image" onclick="deleteImage('${image.folder}', '${image.name}')">
                     <i class="fas fa-times"></i>
                 </button>
@@ -478,49 +500,60 @@ function handleDrop(e) {
 async function handleFileUpload(file) {
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('image', file);
-
     const progressEl = document.getElementById('uploadProgress');
     const progressFill = progressEl.querySelector('.progress-fill');
 
     progressEl.classList.remove('hidden');
-    progressFill.style.width = '50%';
+    progressFill.style.width = '30%';
 
-    try {
-        const response = await fetch(`${API_BASE}/api/images/upload`, {
-            method: 'POST',
-            credentials: 'include',
-            body: formData
-        });
+    // Convert file to base64
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+        progressFill.style.width = '60%';
 
-        const data = await response.json();
+        try {
+            const response = await fetch(`${API_BASE}/images`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    image: e.target.result,
+                    filename: file.name
+                })
+            });
 
-        progressFill.style.width = '100%';
+            const data = await response.json();
+            progressFill.style.width = '100%';
 
-        if (data.success) {
-            showToast('Görsel başarıyla yüklendi!');
-            loadImages();
-        } else {
-            showToast(data.error || 'Yükleme hatası!', 'error');
+            if (data.success) {
+                showToast('Görsel başarıyla yüklendi!');
+                loadImages();
+            } else {
+                showToast(data.error || 'Yükleme hatası!', 'error');
+            }
+        } catch (error) {
+            showToast('Bağlantı hatası!', 'error');
         }
-    } catch (error) {
-        showToast('Bağlantı hatası!', 'error');
-    }
 
-    setTimeout(() => {
-        progressEl.classList.add('hidden');
-        progressFill.style.width = '0%';
-    }, 1000);
+        setTimeout(() => {
+            progressEl.classList.add('hidden');
+            progressFill.style.width = '0%';
+        }, 1000);
+    };
+    reader.readAsDataURL(file);
 }
 
 async function deleteImage(folder, filename) {
     if (!confirm('Bu görseli silmek istediğinize emin misiniz?')) return;
 
     try {
-        const response = await fetch(`${API_BASE}/api/images/${folder}/${filename}`, {
+        const response = await fetch(`${API_BASE}/images/${folder}/${filename}`, {
             method: 'DELETE',
-            credentials: 'include'
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
         });
 
         const data = await response.json();

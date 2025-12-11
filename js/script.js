@@ -45,7 +45,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 async function loadSiteContent() {
     try {
-        const response = await fetch('/api/content');
+        // Try Netlify Functions API first, fallback to local API
+        let response = await fetch('/.netlify/functions/content');
+        if (!response.ok) {
+            response = await fetch('/api/content');
+        }
         if (!response.ok) {
             console.log('API not available, using static content');
             return;
