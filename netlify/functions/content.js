@@ -1,7 +1,10 @@
 const jwt = require('jsonwebtoken');
-const { getStore } = require('@netlify/blobs');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'geometri-yapi-jwt-secret-2024';
+
+// In-memory content storage (will reset on cold start, but works for testing)
+// For production, we'll use Netlify Blobs once it's properly configured
+let storedContent = null;
 
 // Default content structure
 const defaultContent = {
@@ -30,7 +33,7 @@ const defaultContent = {
         "about": {
             "subtitle": "HAKKIMIZDA",
             "title": "GEOMETRİ YAPI PROJE",
-            "description": "Profesyonel ekibimiz ile işletmenize uygun benzersiz ve yaratıcı tasarım çözümlerinde size yardımcı olmaktadır.",
+            "description": "Profesyonel ekibimiz ile işletmenize uygun benzersiz ve yaratıcı tasarım çözümlerinde size yardımcı olmaktadır. İnşaat Proje ve İnşaat Uygulama alanlarında Metraj, Keşif, İhale Teklif Dosyası, Teknik Şartname ve İş Programı hazırlanması hizmetleri sunmaktayız.",
             "buttonText": "DAHA FAZLA",
             "buttonLink": "kurumsal.html",
             "image": "images/project1.jpg"
@@ -48,7 +51,8 @@ const defaultContent = {
             "title": "GEOMETRİ YAPI PROJE",
             "paragraphs": [
                 "Geometri PROJE olarak, profesyonel ekibimiz ile işletmenize uygun benzersiz ve yaratıcı tasarım çözümlerinde size yardımcı olmaktadır.",
-                "İnşaat Proje ve İnşaat Uygulama alanlarında Metraj, Keşif, İhale Teklif Dosyası, Teknik Şartname ve İş Programı hazırlanması hizmetleri sunmaktayız."
+                "İnşaat Proje ve İnşaat Uygulama alanlarında Metraj, Keşif, İhale Teklif Dosyası, Teknik Şartname ve İş Programı hazırlanması hizmetleri sunmaktayız.",
+                "25 yılı aşkın deneyimimiz ile müşterilerimize en kaliteli hizmeti sunmayı hedefliyoruz."
             ],
             "image": "images/project1.jpg"
         },
@@ -59,25 +63,28 @@ const defaultContent = {
             { "number": "10+", "label": "UZMAN EKİP" }
         ],
         "missionVision": [
-            { "icon": "fas fa-bullseye", "title": "MİSYONUMUZ", "description": "Kaliteli, güvenilir ve sürdürülebilir projeler üretmek." },
-            { "icon": "fas fa-eye", "title": "VİZYONUMUZ", "description": "Sektörde lider ve güvenilen bir marka olmak." },
-            { "icon": "fas fa-gem", "title": "DEĞERLERİMİZ", "description": "Dürüstlük, kalite, müşteri odaklılık." }
+            { "icon": "fas fa-bullseye", "title": "MİSYONUMUZ", "description": "Kaliteli, güvenilir ve sürdürülebilir projeler üreterek müşteri memnuniyetini en üst düzeyde tutmak." },
+            { "icon": "fas fa-eye", "title": "VİZYONUMUZ", "description": "Yenilikçi yaklaşımlarla sektörde lider olmak, ulusal ve uluslararası arenada tanınan bir marka olmak." },
+            { "icon": "fas fa-gem", "title": "DEĞERLERİMİZ", "description": "Dürüstlük, kalite, müşteri odaklılık, yenilikçilik ve çevreye saygı temel değerlerimizdir." }
         ]
     },
     "projeler": {
         "items": [
             { "id": 1, "title": "Zenith Hotel", "location": "Girne, KKTC", "category": "hotel", "categoryLabel": "Otel", "image": "images/project1.jpg" },
             { "id": 2, "title": "Grand Casino", "location": "Batum, Gürcistan", "category": "commercial", "categoryLabel": "Ticari", "image": "images/project2.jpg" },
-            { "id": 3, "title": "Sapphire Residence", "location": "İstanbul, Türkiye", "category": "residence", "categoryLabel": "Konut", "image": "images/project3.jpg" }
+            { "id": 3, "title": "Sapphire Residence", "location": "İstanbul, Türkiye", "category": "residence", "categoryLabel": "Konut", "image": "images/project3.jpg" },
+            { "id": 4, "title": "Corporate Tower", "location": "Ankara, Türkiye", "category": "commercial", "categoryLabel": "Ticari", "image": "images/project4.jpg" },
+            { "id": 5, "title": "Luxury Spa Center", "location": "Antalya, Türkiye", "category": "hotel", "categoryLabel": "Otel", "image": "images/project5.jpg" },
+            { "id": 6, "title": "Fine Dining Restaurant", "location": "İzmir, Türkiye", "category": "commercial", "categoryLabel": "Ticari", "image": "images/project6.jpg" }
         ]
     },
     "iletisim": {
         "info": {
             "title": "BİZE ULAŞIN",
-            "description": "Projeleriniz için bizimle iletişime geçebilirsiniz."
+            "description": "Projeleriniz için bizimle iletişime geçebilirsiniz. En kısa sürede size dönüş yapacağız."
         },
         "form": { "buttonText": "MESAJ GÖNDER" },
-        "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3060.4282746837384!2d32.8062!3d39.9016"
+        "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3060.4282746837384!2d32.8062!3d39.9016!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMznCsDU0JzA2LjAiTiAzMsKwNDgnMjIuMCJF!5e0!3m2!1str!2str!4v1234567890"
     },
     "footer": {
         "description": "Profesyonel mimarlık ve tasarım hizmetleri sunmaktayız.",
@@ -111,29 +118,14 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        // Initialize Netlify Blobs store
-        const store = getStore('content');
-
         // GET - Read content (public)
         if (event.httpMethod === 'GET') {
-            try {
-                const content = await store.get('site-content', { type: 'json' });
-                if (content) {
-                    return {
-                        statusCode: 200,
-                        headers,
-                        body: JSON.stringify(content)
-                    };
-                }
-            } catch (e) {
-                // Blob doesn't exist yet, return default
-            }
-
-            // Return default content if not found
+            // Return stored content or default
+            const content = storedContent || defaultContent;
             return {
                 statusCode: 200,
                 headers,
-                body: JSON.stringify(defaultContent)
+                body: JSON.stringify(content)
             };
         }
 
@@ -152,8 +144,8 @@ exports.handler = async (event, context) => {
 
             const newContent = JSON.parse(event.body);
 
-            // Save to Netlify Blobs
-            await store.setJSON('site-content', newContent);
+            // Store in memory (will persist until cold start)
+            storedContent = newContent;
 
             return {
                 statusCode: 200,

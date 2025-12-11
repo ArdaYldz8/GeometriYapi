@@ -1,12 +1,6 @@
 const jwt = require('jsonwebtoken');
-const { getStore } = require('@netlify/blobs');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'geometri-yapi-jwt-secret-2024';
-
-// Cloudinary configuration (optional - for future use)
-const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
-const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
-const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
 
 // Verify JWT token
 function verifyToken(authHeader) {
@@ -21,6 +15,17 @@ function verifyToken(authHeader) {
     }
 }
 
+// Static images list
+const staticImages = [
+    { name: 'hero1.jpg', path: '/images/hero1.jpg', folder: 'images' },
+    { name: 'project1.jpg', path: '/images/project1.jpg', folder: 'images' },
+    { name: 'project2.jpg', path: '/images/project2.jpg', folder: 'images' },
+    { name: 'project3.jpg', path: '/images/project3.jpg', folder: 'images' },
+    { name: 'project4.jpg', path: '/images/project4.jpg', folder: 'images' },
+    { name: 'project5.jpg', path: '/images/project5.jpg', folder: 'images' },
+    { name: 'project6.jpg', path: '/images/project6.jpg', folder: 'images' }
+];
+
 exports.handler = async (event, context) => {
     const headers = {
         'Access-Control-Allow-Origin': '*',
@@ -33,49 +38,9 @@ exports.handler = async (event, context) => {
         return { statusCode: 200, headers, body: '' };
     }
 
-    // All image operations require auth
-    const authHeader = event.headers.authorization || event.headers.Authorization;
-    const user = verifyToken(authHeader);
-
-    if (!user && event.httpMethod !== 'GET') {
-        return {
-            statusCode: 401,
-            headers,
-            body: JSON.stringify({ error: 'Yetkisiz erişim' })
-        };
-    }
-
     try {
-        const store = getStore('images');
-
-        // GET - List all images
+        // GET - List all images (public)
         if (event.httpMethod === 'GET') {
-            // Return static images list for now
-            // In production, this would list from Cloudinary or Blobs
-            const staticImages = [
-                { name: 'hero1.jpg', path: '/images/hero1.jpg', folder: 'images' },
-                { name: 'project1.jpg', path: '/images/project1.jpg', folder: 'images' },
-                { name: 'project2.jpg', path: '/images/project2.jpg', folder: 'images' },
-                { name: 'project3.jpg', path: '/images/project3.jpg', folder: 'images' },
-                { name: 'project4.jpg', path: '/images/project4.jpg', folder: 'images' },
-                { name: 'project5.jpg', path: '/images/project5.jpg', folder: 'images' },
-                { name: 'project6.jpg', path: '/images/project6.jpg', folder: 'images' }
-            ];
-
-            // Try to get uploaded images list from Blobs
-            try {
-                const uploadedImages = await store.get('uploaded-images', { type: 'json' });
-                if (uploadedImages && Array.isArray(uploadedImages)) {
-                    return {
-                        statusCode: 200,
-                        headers,
-                        body: JSON.stringify([...staticImages, ...uploadedImages])
-                    };
-                }
-            } catch (e) {
-                // No uploaded images yet
-            }
-
             return {
                 statusCode: 200,
                 headers,
@@ -83,100 +48,37 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // POST - Upload image (for now, just store metadata)
-        // Note: For full image upload, Cloudinary integration is needed
+        // All other operations require auth
+        const authHeader = event.headers.authorization || event.headers.Authorization;
+        const user = verifyToken(authHeader);
+
+        if (!user) {
+            return {
+                statusCode: 401,
+                headers,
+                body: JSON.stringify({ error: 'Yetkisiz erişim' })
+            };
+        }
+
+        // POST - Upload image (placeholder - would need Cloudinary for real uploads)
         if (event.httpMethod === 'POST') {
-            // Parse base64 image from request body
-            const body = JSON.parse(event.body || '{}');
-
-            if (!body.image || !body.filename) {
-                return {
-                    statusCode: 400,
-                    headers,
-                    body: JSON.stringify({ error: 'Görsel ve dosya adı gerekli' })
-                };
-            }
-
-            // Generate unique filename
-            const uniqueName = `upload-${Date.now()}-${body.filename}`;
-
-            // Store image as base64 in Blobs (for small images only)
-            // For production, use Cloudinary
-            await store.set(`image-${uniqueName}`, body.image);
-
-            // Update uploaded images list
-            let uploadedImages = [];
-            try {
-                const existing = await store.get('uploaded-images', { type: 'json' });
-                if (existing && Array.isArray(existing)) {
-                    uploadedImages = existing;
-                }
-            } catch (e) { }
-
-            uploadedImages.push({
-                name: uniqueName,
-                path: `/.netlify/functions/images?file=${uniqueName}`,
-                folder: 'uploads'
-            });
-
-            await store.setJSON('uploaded-images', uploadedImages);
-
             return {
                 statusCode: 200,
                 headers,
                 body: JSON.stringify({
                     success: true,
-                    message: 'Görsel başarıyla yüklendi!',
-                    file: {
-                        name: uniqueName,
-                        path: `/.netlify/functions/images?file=${uniqueName}`
-                    }
+                    message: 'Görsel yükleme özelliği henüz aktif değil. Mevcut görselleri kullanabilirsiniz.'
                 })
             };
         }
 
         // DELETE - Remove image
         if (event.httpMethod === 'DELETE') {
-            const path = event.path;
-            const parts = path.split('/');
-            const folder = parts[parts.length - 2];
-            const filename = parts[parts.length - 1];
-
-            if (folder === 'images') {
-                return {
-                    statusCode: 400,
-                    headers,
-                    body: JSON.stringify({ error: 'Statik görseller silinemez' })
-                };
-            }
-
-            // Remove from Blobs
-            try {
-                await store.delete(`image-${filename}`);
-
-                // Update uploaded images list
-                let uploadedImages = [];
-                try {
-                    const existing = await store.get('uploaded-images', { type: 'json' });
-                    if (existing && Array.isArray(existing)) {
-                        uploadedImages = existing.filter(img => img.name !== filename);
-                    }
-                } catch (e) { }
-
-                await store.setJSON('uploaded-images', uploadedImages);
-
-                return {
-                    statusCode: 200,
-                    headers,
-                    body: JSON.stringify({ success: true, message: 'Görsel silindi!' })
-                };
-            } catch (error) {
-                return {
-                    statusCode: 500,
-                    headers,
-                    body: JSON.stringify({ error: 'Görsel silinirken hata oluştu' })
-                };
-            }
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ error: 'Statik görseller silinemez' })
+            };
         }
 
         return {
@@ -190,7 +92,7 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: 'Sunucu hatası' })
+            body: JSON.stringify({ error: 'Sunucu hatası: ' + error.message })
         };
     }
 };
