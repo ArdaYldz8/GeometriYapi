@@ -2,6 +2,18 @@
 // GEOMETRI YAPI - Main Site JavaScript
 // ============================================
 
+/**
+ * Escape HTML to prevent XSS attacks
+ * @param {string} text - Text to escape
+ * @returns {string} Escaped text
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Load dynamic content from API
     loadSiteContent();
@@ -114,9 +126,9 @@ function updateFooterContent(footer, site) {
     const contactList = document.querySelector('.footer-col .contact-list');
     if (contactList) {
         contactList.innerHTML = `
-            <li><i class="fas fa-map-marker-alt"></i> ${site.address}</li>
-            <li><i class="fas fa-phone"></i> ${site.phone}</li>
-            <li><i class="fas fa-envelope"></i> ${site.email}</li>
+            <li><i class="fas fa-map-marker-alt"></i> ${escapeHtml(site.address)}</li>
+            <li><i class="fas fa-phone"></i> ${escapeHtml(site.phone)}</li>
+            <li><i class="fas fa-envelope"></i> ${escapeHtml(site.email)}</li>
         `;
     }
 
@@ -176,10 +188,10 @@ function updateHomeContent(home, projeler) {
                 const card = document.createElement('div');
                 card.className = 'project-card';
                 card.innerHTML = `
-                    <img src="${project.image}" alt="${project.title}">
+                    <img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}">
                     <div class="overlay">
-                        <h3>${project.title}</h3>
-                        <p>${project.location}</p>
+                        <h3>${escapeHtml(project.title)}</h3>
+                        <p>${escapeHtml(project.location)}</p>
                     </div>
                 `;
                 homeProjectsGrid.appendChild(card);
@@ -251,11 +263,11 @@ function updateProjelerContent(projeler) {
         card.className = 'project-card';
         card.setAttribute('data-category', project.category);
         card.innerHTML = `
-            <img src="${project.image}" alt="${project.title}">
+            <img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}">
             <div class="overlay">
-                <h3>${project.title}</h3>
-                <p>${project.location}</p>
-                <span class="category">${project.categoryLabel}</span>
+                <h3>${escapeHtml(project.title)}</h3>
+                <p>${escapeHtml(project.location)}</p>
+                <span class="category">${escapeHtml(project.categoryLabel)}</span>
             </div>
         `;
         grid.appendChild(card);

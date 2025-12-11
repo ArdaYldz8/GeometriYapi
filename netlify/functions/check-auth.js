@@ -1,14 +1,10 @@
 const jwt = require('jsonwebtoken');
+const { getCorsHeaders, checkRequiredEnvVars } = require('./utils/security');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'geometri-yapi-jwt-secret-2024';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.handler = async (event, context) => {
-    const headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Content-Type': 'application/json'
-    };
+    const headers = getCorsHeaders(event, ['GET', 'OPTIONS']);
 
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 200, headers, body: '' };
@@ -19,6 +15,17 @@ exports.handler = async (event, context) => {
             statusCode: 405,
             headers,
             body: JSON.stringify({ error: 'Method not allowed' })
+        };
+    }
+
+    // Check required environment variables
+    const envCheck = checkRequiredEnvVars(['JWT_SECRET']);
+    if (!envCheck.valid) {
+        console.error('CRITICAL: Missing JWT_SECRET');
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({ authenticated: false })
         };
     }
 

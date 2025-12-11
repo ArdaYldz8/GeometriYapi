@@ -1,19 +1,25 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { getCorsHeaders, rateLimit, getClientIp, checkRequiredEnvVars } = require('./utils/security');
 
-// Environment variables
-const JWT_SECRET = process.env.JWT_SECRET || 'geometri-yapi-jwt-secret-2024';
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD_HASH = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'geometri2024', 10);
+// Required environment variables - NO FALLBACKS for security
+const JWT_SECRET = process.env.JWT_SECRET;
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+// Cache password hash to avoid computing on every request
+let ADMIN_PASSWORD_HASH = null;
+
+// Initialize password hash
+function getPasswordHash() {
+    if (!ADMIN_PASSWORD_HASH && ADMIN_PASSWORD) {
+        ADMIN_PASSWORD_HASH = bcrypt.hashSync(ADMIN_PASSWORD, 12);
+    }
+    return ADMIN_PASSWORD_HASH;
+}
 
 exports.handler = async (event, context) => {
-    // CORS headers
-    const headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Content-Type': 'application/json'
-    };
+    const headers = getCorsHeaders(event, ['POST', 'OPTIONS']);
 
     // Handle preflight
     if (event.httpMethod === 'OPTIONS') {
@@ -25,6 +31,35 @@ exports.handler = async (event, context) => {
             statusCode: 405,
             headers,
             body: JSON.stringify({ error: 'Method not allowed' })
+        };
+    }
+
+    // Check required environment variables
+    const envCheck = checkRequiredEnvVars(['JWT_SECRET', 'ADMIN_USERNAME', 'ADMIN_PASSWORD']);
+    if (!envCheck.valid) {
+        console.error('CRITICAL: Missing environment variables:', envCheck.missing);
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ error: 'Sunucu yapılandırma hatası' })
+        };
+    }
+
+    // Rate limiting - 5 attempts per minute per IP
+    const clientIp = getClientIp(event);
+    const rateLimitResult = rateLimit(clientIp, 5, 60000);
+
+    if (!rateLimitResult.allowed) {
+        return {
+            statusCode: 429,
+            headers: {
+                ...headers,
+                'Retry-After': '60'
+            },
+            body: JSON.stringify({
+                error: 'Çok fazla deneme. Lütfen 1 dakika bekleyin.',
+                retryAfter: 60
+            })
         };
     }
 
@@ -41,7 +76,8 @@ exports.handler = async (event, context) => {
 
         // Verify credentials
         const isValidUser = username === ADMIN_USERNAME;
-        const isValidPassword = bcrypt.compareSync(password, ADMIN_PASSWORD_HASH);
+        const passwordHash = getPasswordHash();
+        const isValidPassword = passwordHash && bcrypt.compareSync(password, passwordHash);
 
         if (isValidUser && isValidPassword) {
             // Generate JWT token
@@ -61,6 +97,7 @@ exports.handler = async (event, context) => {
                 })
             };
         } else {
+            // Don't reveal which credential was wrong
             return {
                 statusCode: 401,
                 headers,
@@ -68,7 +105,7 @@ exports.handler = async (event, context) => {
             };
         }
     } catch (error) {
-        console.error('Auth error:', error);
+        console.error('Auth error:', error.message);
         return {
             statusCode: 500,
             headers,

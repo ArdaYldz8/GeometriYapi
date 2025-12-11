@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
+const { getCorsHeaders, checkRequiredEnvVars } = require('./utils/security');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'geometri-yapi-jwt-secret-2024';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // In-memory content storage (will reset on cold start, but works for testing)
-// For production, we'll use Netlify Blobs once it's properly configured
 let storedContent = null;
 
 // Default content structure
@@ -97,6 +97,10 @@ function verifyToken(authHeader) {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return null;
     }
+    if (!JWT_SECRET) {
+        console.error('CRITICAL: JWT_SECRET not configured');
+        return null;
+    }
     try {
         const token = authHeader.substring(7);
         return jwt.verify(token, JWT_SECRET);
@@ -105,13 +109,31 @@ function verifyToken(authHeader) {
     }
 }
 
+// Input validation for content
+function validateContent(content) {
+    if (!content || typeof content !== 'object') {
+        return { valid: false, error: 'Geçersiz içerik formatı' };
+    }
+
+    // Site validation
+    if (content.site) {
+        if (content.site.email && !content.site.email.includes('@')) {
+            return { valid: false, error: 'Geçersiz e-posta formatı' };
+        }
+        if (content.site.phone && !/^[\d\s+\-()]+$/.test(content.site.phone)) {
+            return { valid: false, error: 'Geçersiz telefon formatı' };
+        }
+        // Limit string lengths to prevent abuse
+        if (content.site.title && content.site.title.length > 100) {
+            return { valid: false, error: 'Site başlığı çok uzun (max 100 karakter)' };
+        }
+    }
+
+    return { valid: true };
+}
+
 exports.handler = async (event, context) => {
-    const headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
-        'Content-Type': 'application/json'
-    };
+    const headers = getCorsHeaders(event, ['GET', 'PUT', 'OPTIONS']);
 
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 200, headers, body: '' };
@@ -120,7 +142,6 @@ exports.handler = async (event, context) => {
     try {
         // GET - Read content (public)
         if (event.httpMethod === 'GET') {
-            // Return stored content or default
             const content = storedContent || defaultContent;
             return {
                 statusCode: 200,
@@ -142,7 +163,26 @@ exports.handler = async (event, context) => {
                 };
             }
 
-            const newContent = JSON.parse(event.body);
+            let newContent;
+            try {
+                newContent = JSON.parse(event.body);
+            } catch (parseError) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: 'Geçersiz JSON formatı' })
+                };
+            }
+
+            // Validate content
+            const validation = validateContent(newContent);
+            if (!validation.valid) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: validation.error })
+                };
+            }
 
             // Store in memory (will persist until cold start)
             storedContent = newContent;
@@ -164,11 +204,11 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        console.error('Content error:', error);
+        console.error('Content error:', error.message);
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: 'Sunucu hatası: ' + error.message })
+            body: JSON.stringify({ error: 'Bir hata oluştu. Lütfen tekrar deneyin.' })
         };
     }
 };

@@ -9,6 +9,22 @@ let currentImageTarget = null;
 let authToken = null;
 
 // ============================================
+// SECURITY UTILITIES
+// ============================================
+
+/**
+ * Escape HTML to prevent XSS attacks
+ * @param {string} text - Text to escape
+ * @returns {string} Escaped text
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ============================================
 // INITIALIZATION
 // ============================================
 
@@ -65,6 +81,21 @@ function showDashboard() {
 function setupEventListeners() {
     // Login form
     document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const passwordInput = document.getElementById('password');
+        const icon = this.querySelector('i');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
 
     // Logout button
     document.getElementById('logoutBtn').addEventListener('click', handleLogout);
@@ -299,11 +330,11 @@ function renderProjects() {
             <div class="form-grid">
                 <div class="form-group">
                     <label>Proje Adı</label>
-                    <input type="text" class="project-title" data-index="${index}" value="${project.title || ''}">
+                    <input type="text" class="project-title" data-index="${index}" value="${escapeHtml(project.title || '')}">
                 </div>
                 <div class="form-group">
                     <label>Konum</label>
-                    <input type="text" class="project-location" data-index="${index}" value="${project.location || ''}">
+                    <input type="text" class="project-location" data-index="${index}" value="${escapeHtml(project.location || '')}">
                 </div>
                 <div class="form-group">
                     <label>Kategori</label>
@@ -395,11 +426,11 @@ function renderStats() {
             <div class="form-grid">
                 <div class="form-group">
                     <label>Sayı</label>
-                    <input type="text" class="stat-number" data-index="${index}" value="${stat.number || ''}">
+                    <input type="text" class="stat-number" data-index="${index}" value="${escapeHtml(stat.number || '')}">
                 </div>
                 <div class="form-group">
                     <label>Etiket</label>
-                    <input type="text" class="stat-label" data-index="${index}" value="${stat.label || ''}">
+                    <input type="text" class="stat-label" data-index="${index}" value="${escapeHtml(stat.label || '')}">
                 </div>
             </div>
         `;

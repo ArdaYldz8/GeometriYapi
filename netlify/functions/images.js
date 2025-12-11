@@ -1,10 +1,15 @@
 const jwt = require('jsonwebtoken');
+const { getCorsHeaders, checkRequiredEnvVars } = require('./utils/security');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'geometri-yapi-jwt-secret-2024';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Verify JWT token
 function verifyToken(authHeader) {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return null;
+    }
+    if (!JWT_SECRET) {
+        console.error('CRITICAL: JWT_SECRET not configured');
         return null;
     }
     try {
@@ -27,12 +32,7 @@ const staticImages = [
 ];
 
 exports.handler = async (event, context) => {
-    const headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-        'Content-Type': 'application/json'
-    };
+    const headers = getCorsHeaders(event, ['GET', 'POST', 'DELETE', 'OPTIONS']);
 
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 200, headers, body: '' };
@@ -88,11 +88,11 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        console.error('Images error:', error);
+        console.error('Images error:', error.message);
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: 'Sunucu hatası: ' + error.message })
+            body: JSON.stringify({ error: 'Bir hata oluştu. Lütfen tekrar deneyin.' })
         };
     }
 };
