@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | GEOMETRİ YAPI</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fas fa-building"></i>
+                <h1>GEOMETRİ YAPI</h1>
+                <p>Admin Panel</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Kullanıcı Adı</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Şifre</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Giriş Yap
+                </button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>GEOMETRİ YAPI</h2>
+                <span>Admin Panel</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="site">
+                    <i class="fas fa-globe"></i> Site Ayarları
+                </a>
+                <a href="#" class="nav-item" data-section="home">
+                    <i class="fas fa-home"></i> Ana Sayfa
+                </a>
+                <a href="#" class="nav-item" data-section="kurumsal">
+                    <i class="fas fa-building"></i> Kurumsal
+                </a>
+                <a href="#" class="nav-item" data-section="projeler">
+                    <i class="fas fa-project-diagram"></i> Projeler
+                </a>
+                <a href="#" class="nav-item" data-section="iletisim">
+                    <i class="fas fa-envelope"></i> İletişim
+                </a>
+                <a href="#" class="nav-item" data-section="images">
+                    <i class="fas fa-images"></i> Görseller
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h1 id="sectionTitle">Site Ayarları</h1>
+                <div class="header-actions">
+                    <a href="/" target="_blank" class="btn-preview">
+                        <i class="fas fa-external-link-alt"></i> Siteyi Görüntüle
+                    </a>
+                    <button id="saveAllBtn" class="btn-save">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- Site Settings Section -->
+                <section id="section-site" class="editor-section active">
+                    <div class="card">
+                        <h3><i class="fas fa-cog"></i> Genel Ayarlar</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Site Başlığı / Logo</label>
+                                <input type="text" id="site-title" data-path="site.title">
+                            </div>
+                            <div class="form-group">
+                                <label>Telefon</label>
+                                <input type="text" id="site-phone" data-path="site.phone">
+                            </div>
+                            <div class="form-group">
+                                <label>E-posta</label>
+                                <input type="email" id="site-email" data-path="site.email">
+                            </div>
+                            <div class="form-group">
+                                <label>Çalışma Saatleri</label>
+                                <input type="text" id="site-workingHours" data-path="site.workingHours">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Adres</label>
+                                <textarea id="site-address" data-path="site.address" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-share-alt"></i> Sosyal Medya Linkleri</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Facebook</label>
+                                <input type="url" id="site-facebook" data-path="site.socialMedia.facebook">
+                            </div>
+                            <div class="form-group">
+                                <label>Instagram</label>
+                                <input type="url" id="site-instagram" data-path="site.socialMedia.instagram">
+                            </div>
+                            <div class="form-group">
+                                <label>LinkedIn</label>
+                                <input type="url" id="site-linkedin" data-path="site.socialMedia.linkedin">
+                            </div>
+                            <div class="form-group">
+                                <label>Twitter</label>
+                                <input type="url" id="site-twitter" data-path="site.socialMedia.twitter">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Home Section -->
+                <section id="section-home" class="editor-section">
+                    <div class="card">
+                        <h3><i class="fas fa-image"></i> Hero Bölümü</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Başlık</label>
+                                <input type="text" id="home-hero-title" data-path="home.hero.title">
+                            </div>
+                            <div class="form-group">
+                                <label>Alt Başlık</label>
+                                <input type="text" id="home-hero-subtitle" data-path="home.hero.subtitle">
+                            </div>
+                            <div class="form-group">
+                                <label>Buton Metni</label>
+                                <input type="text" id="home-hero-buttonText" data-path="home.hero.buttonText">
+                            </div>
+                            <div class="form-group">
+                                <label>Arka Plan Görseli</label>
+                                <div class="image-selector">
+                                    <input type="text" id="home-hero-backgroundImage"
+                                        data-path="home.hero.backgroundImage" readonly>
+                                    <button type="button" class="btn-select-image"
+                                        data-target="home-hero-backgroundImage">
+                                        <i class="fas fa-image"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-info-circle"></i> Hakkımızda Bölümü</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Üst Başlık</label>
+                                <input type="text" id="home-about-subtitle" data-path="home.about.subtitle">
+                            </div>
+                            <div class="form-group">
+                                <label>Başlık</label>
+                                <input type="text" id="home-about-title" data-path="home.about.title">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Açıklama</label>
+                                <textarea id="home-about-description" data-path="home.about.description"
+                                    rows="4"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Buton Metni</label>
+                                <input type="text" id="home-about-buttonText" data-path="home.about.buttonText">
+                            </div>
+                            <div class="form-group">
+                                <label>Görsel</label>
+                                <div class="image-selector">
+                                    <input type="text" id="home-about-image" data-path="home.about.image" readonly>
+                                    <button type="button" class="btn-select-image" data-target="home-about-image">
+                                        <i class="fas fa-image"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-bullhorn"></i> CTA (Çağrı) Bölümü</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Başlık</label>
+                                <input type="text" id="home-cta-title" data-path="home.cta.title">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Açıklama</label>
+                                <textarea id="home-cta-description" data-path="home.cta.description"
+                                    rows="2"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Buton Metni</label>
+                                <input type="text" id="home-cta-buttonText" data-path="home.cta.buttonText">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Kurumsal Section -->
+                <section id="section-kurumsal" class="editor-section">
+                    <div class="card">
+                        <h3><i class="fas fa-building"></i> Hakkımızda</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Üst Başlık</label>
+                                <input type="text" id="kurumsal-about-subtitle" data-path="kurumsal.about.subtitle">
+                            </div>
+                            <div class="form-group">
+                                <label>Başlık</label>
+                                <input type="text" id="kurumsal-about-title" data-path="kurumsal.about.title">
+                            </div>
+                            <div class="form-group">
+                                <label>Görsel</label>
+                                <div class="image-selector">
+                                    <input type="text" id="kurumsal-about-image" data-path="kurumsal.about.image"
+                                        readonly>
+                                    <button type="button" class="btn-select-image" data-target="kurumsal-about-image">
+                                        <i class="fas fa-image"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Paragraflar (her satır bir paragraf)</label>
+                            <textarea id="kurumsal-about-paragraphs" data-path="kurumsal.about.paragraphs"
+                                data-type="array" rows="5"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-chart-line"></i> İstatistikler</h3>
+                        <div id="stats-container"></div>
+                        <button type="button" class="btn-add" id="addStatBtn">
+                            <i class="fas fa-plus"></i> İstatistik Ekle
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Projeler Section -->
+                <section id="section-projeler" class="editor-section">
+                    <div class="card">
+                        <h3><i class="fas fa-project-diagram"></i> Projeler</h3>
+                        <div id="projects-container"></div>
+                        <button type="button" class="btn-add" id="addProjectBtn">
+                            <i class="fas fa-plus"></i> Proje Ekle
+                        </button>
+                    </div>
+                </section>
+
+                <!-- İletişim Section -->
+                <section id="section-iletisim" class="editor-section">
+                    <div class="card">
+                        <h3><i class="fas fa-envelope"></i> İletişim Sayfası</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Başlık</label>
+                                <input type="text" id="iletisim-info-title" data-path="iletisim.info.title">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Açıklama</label>
+                                <textarea id="iletisim-info-description" data-path="iletisim.info.description"
+                                    rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Form Buton Metni</label>
+                                <input type="text" id="iletisim-form-buttonText" data-path="iletisim.form.buttonText">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Google Maps Embed URL</label>
+                                <input type="url" id="iletisim-mapEmbedUrl" data-path="iletisim.mapEmbedUrl">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Images Section -->
+                <section id="section-images" class="editor-section">
+                    <div class="card">
+                        <h3><i class="fas fa-upload"></i> Görsel Yükle</h3>
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Görseli buraya sürükleyin veya tıklayın</p>
+                            <input type="file" id="imageUpload" accept="image/*" hidden>
+                        </div>
+                        <div id="uploadProgress" class="upload-progress hidden">
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                            <span class="progress-text">Yükleniyor...</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-images"></i> Mevcut Görseller</h3>
+                        <div id="imagesGrid" class="images-grid"></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Image Picker Modal -->
+    <div id="imagePickerModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Görsel Seç</h2>
+                <button class="modal-close" id="closeImagePicker">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="imagePickerGrid" class="images-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="js/admin.js"></script>
+</body>
+
+</html>

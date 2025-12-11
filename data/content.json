@@ -1,0 +1,267 @@
+{
+  "site": {
+    "title": "GEOMETRİ YAPI",
+    "logo": "GEOMETRİ YAPI",
+    "phone": "+90 532 649 29 93",
+    "email": "geometriyapi@gmail.com",
+    "address": "Yıldız Turan Güneş Bulvarı 32/59 Çankaya, Ankara",
+    "workingHours": "Pazartesi - Cuma: 09:00 - 18:00",
+    "socialMedia": {
+      "facebook": "#",
+      "instagram": "#",
+      "linkedin": "#",
+      "twitter": "#"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "GEOMETRİ YAPI PROJE ",
+      "subtitle": "Profesyonel mimarlık ve tasarım hizmetleri sunmaktayız. ",
+      "buttonText": "PROJELER",
+      "buttonLink": "projeler.html",
+      "backgroundImage": "images/hero1.jpg"
+    },
+    "services": {
+      "sectionTitle": "HİZMETLERİMİZ",
+      "items": [
+        {
+          "icon": "fas fa-drafting-compass",
+          "title": "Mimari Tasarım",
+          "description": "Modern ve fonksiyonel mimari tasarım çözümleri sunuyoruz."
+        },
+        {
+          "icon": "fas fa-hard-hat",
+          "title": "İnşaat Yönetimi",
+          "description": "Projelerinizi baştan sona profesyonel ekibimizle yönetiyoruz."
+        },
+        {
+          "icon": "fas fa-pencil-ruler",
+          "title": "İç Mimarlık",
+          "description": "Yaşam alanlarınızı estetik ve işlevsel hale getiriyoruz."
+        },
+        {
+          "icon": "fas fa-city",
+          "title": "Kentsel Dönüşüm",
+          "description": "Şehirlerin geleceğini şekillendiren projeler geliştiriyoruz."
+        }
+      ]
+    },
+    "about": {
+      "subtitle": "HAKKIMIZDA",
+      "title": "GEOMETRİ YAPI PROJE",
+      "description": "Profesyonel ekibimiz ile işletmenize uygun benzersiz ve yaratıcı tasarım çözümlerinde size yardımcı olmaktadır. İnşaat Proje ve İnşaat Uygulama alanlarında Metraj, Keşif, İhale Teklif Dosyası, Teknik Şartname ve İş Programı hazırlanması hizmetleri sunmaktayız.",
+      "buttonText": "DAHA FAZLA",
+      "buttonLink": "kurumsal.html",
+      "image": "images/project1.jpg"
+    },
+    "projects": {
+      "sectionTitle": "PROJELER",
+      "buttonText": "TÜM PROJELER",
+      "buttonLink": "projeler.html"
+    },
+    "cta": {
+      "title": "Projenizi Hayata Geçirelim",
+      "description": "Profesyonel ekibimizle hayalinizdeki projeyi gerçeğe dönüştürelim.",
+      "buttonText": "İLETİŞİME GEÇİN",
+      "buttonLink": "iletisim.html"
+    }
+  },
+  "kurumsal": {
+    "pageHeader": {
+      "title": "KURUMSAL",
+      "backgroundImage": "images/hero1.jpg"
+    },
+    "about": {
+      "subtitle": "BİZ KİMİZ",
+      "title": "GEOMETRİ YAPI PROJE",
+      "paragraphs": [
+        "Geometri PROJE olarak, profesyonel ekibimiz ile işletmenize uygun benzersiz ve yaratıcı tasarım çözümlerinde size yardımcı olmaktadır.",
+        "İnşaat Proje ve İnşaat Uygulama alanlarında Metraj, Keşif, İhale Teklif Dosyası, Teknik Şartname ve İş Programı hazırlanması hizmetleri sunmaktayız.",
+        "25 yılı aşkın deneyimimiz ile müşterilerimize en kaliteli hizmeti sunmayı hedefliyoruz."
+      ],
+      "image": "images/project1.jpg"
+    },
+    "missionVision": [
+      {
+        "icon": "fas fa-bullseye",
+        "title": "MİSYONUMUZ",
+        "description": "Kaliteli, güvenilir ve sürdürülebilir projeler üreterek müşteri memnuniyetini en üst düzeyde tutmak ve sektörde öncü konumumuzu sürdürmek."
+      },
+      {
+        "icon": "fas fa-eye",
+        "title": "VİZYONUMUZ",
+        "description": "Yenilikçi yaklaşımlarla sektörde lider olmak, ulusal ve uluslararası arenada tanınan, güvenilen bir marka olmak."
+      },
+      {
+        "icon": "fas fa-gem",
+        "title": "DEĞERLERİMİZ",
+        "description": "Dürüstlük, kalite, müşteri odaklılık, yenilikçilik ve çevreye saygı temel değerlerimizdir."
+      }
+    ],
+    "stats": [
+      {
+        "number": "150+",
+        "label": "TAMAMLANAN PROJE"
+      },
+      {
+        "number": "50+",
+        "label": "MUTLU MÜŞTERİ"
+      },
+      {
+        "number": "25+",
+        "label": "YIL DENEYİM"
+      },
+      {
+        "number": "10+",
+        "label": "UZMAN EKİP"
+      }
+    ],
+    "services": [
+      {
+        "icon": "fas fa-drafting-compass",
+        "title": "İnşaat Proje Hizmetleri",
+        "items": [
+          "Metraj ve Keşif Hazırlanması",
+          "İhale Teklif Dosyası Hazırlanması",
+          "Teknik Şartname Hazırlanması",
+          "Birim Fiyat Analizleri"
+        ]
+      },
+      {
+        "icon": "fas fa-hard-hat",
+        "title": "İnşaat Uygulama Hizmetleri",
+        "items": [
+          "İş Programı Hazırlanması",
+          "Proje Yönetimi",
+          "Saha Koordinasyonu",
+          "Kalite Kontrol"
+        ]
+      },
+      {
+        "icon": "fas fa-building",
+        "title": "Mimari Tasarım",
+        "items": [
+          "Konsept Tasarım",
+          "Uygulama Projeleri",
+          "3D Modelleme",
+          "İç Mimari Çözümler"
+        ]
+      }
+    ]
+  },
+  "projeler": {
+    "pageHeader": {
+      "title": "PROJELER",
+      "backgroundImage": "images/hero1.jpg"
+    },
+    "filters": [
+      {
+        "key": "all",
+        "label": "TÜMÜ"
+      },
+      {
+        "key": "hotel",
+        "label": "OTEL"
+      },
+      {
+        "key": "residence",
+        "label": "KONUT"
+      },
+      {
+        "key": "commercial",
+        "label": "TİCARİ"
+      }
+    ],
+    "items": [
+      {
+        "id": 1,
+        "title": "kahramanmaraş hotel",
+        "location": "Girne, KKTC",
+        "category": "hotel",
+        "categoryLabel": "Otel",
+        "image": "images/project1.jpg"
+      },
+      {
+        "id": 2,
+        "title": "Grand Casino",
+        "location": "Batum, Gürcistan",
+        "category": "commercial",
+        "categoryLabel": "Ticari",
+        "image": "images/project2.jpg"
+      },
+      {
+        "id": 3,
+        "title": "Sapphire Residence",
+        "location": "İstanbul, Türkiye",
+        "category": "residence",
+        "categoryLabel": "Konut",
+        "image": "images/project3.jpg"
+      },
+      {
+        "id": 4,
+        "title": "Corporate Tower",
+        "location": "Ankara, Türkiye",
+        "category": "commercial",
+        "categoryLabel": "Ticari",
+        "image": "images/project4.jpg"
+      },
+      {
+        "id": 5,
+        "title": "Luxury Spa Center",
+        "location": "Antalya, Türkiye",
+        "category": "hotel",
+        "categoryLabel": "Otel",
+        "image": "images/project5.jpg"
+      },
+      {
+        "id": 6,
+        "title": "Fine Dining Restaurant",
+        "location": "İzmir, Türkiye",
+        "category": "commercial",
+        "categoryLabel": "Ticari",
+        "image": "images/project6.jpg"
+      }
+    ]
+  },
+  "iletisim": {
+    "pageHeader": {
+      "title": "İLETİŞİM",
+      "backgroundImage": "images/hero1.jpg"
+    },
+    "info": {
+      "title": "BİZE ULAŞIN",
+      "description": "Projeleriniz için bizimle iletişime geçebilirsiniz. En kısa sürede size dönüş yapacağız."
+    },
+    "form": {
+      "buttonText": "MESAJ GÖNDER"
+    },
+    "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3060.4282746837384!2d32.8062!3d39.9016!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMznCsDU0JzA2LjAiTiAzMsKwNDgnMjIuMCJF!5e0!3m2!1str!2str!4v1234567890"
+  },
+  "footer": {
+    "description": "Profesyonel mimarlık ve tasarım hizmetleri sunmaktayız.",
+    "quickLinks": {
+      "title": "HIZLI LİNKLER",
+      "items": [
+        {
+          "label": "Ana Sayfa",
+          "url": "index.html"
+        },
+        {
+          "label": "Kurumsal",
+          "url": "kurumsal.html"
+        },
+        {
+          "label": "Projeler",
+          "url": "projeler.html"
+        },
+        {
+          "label": "İletişim",
+          "url": "iletisim.html"
+        }
+      ]
+    },
+    "contactTitle": "İLETİŞİM",
+    "socialTitle": "SOSYAL MEDYA",
+    "copyright": "© 2024 Geometri YAPI. Tüm hakları saklıdır."
+  }
+}
