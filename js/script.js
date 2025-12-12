@@ -83,7 +83,7 @@ async function loadSiteContent() {
                 updateStats(content.kurumsal?.stats);
                 break;
             case 'kurumsal':
-                updateKurumsalContent(content.kurumsal);
+                updateKurumsalContent(content.kurumsal, content.home?.services);
                 updateStats(content.kurumsal?.stats);
                 break;
             case 'projeler':
@@ -200,9 +200,32 @@ function updateHomeContent(home, projeler) {
             });
         }
     }
+
+    // Update services section
+    if (home.services) {
+        const servicesTitle = document.querySelector('.services-preview .section-title h2');
+        if (servicesTitle && home.services.sectionTitle) {
+            servicesTitle.textContent = home.services.sectionTitle;
+        }
+
+        const servicesGrid = document.querySelector('.services-grid');
+        if (servicesGrid && home.services.items) {
+            servicesGrid.innerHTML = '';
+            home.services.items.forEach(service => {
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                card.innerHTML = `
+                    <i class="${escapeHtml(service.icon)}"></i>
+                    <h3>${escapeHtml(service.title)}</h3>
+                    <p>${escapeHtml(service.description)}</p>
+                `;
+                servicesGrid.appendChild(card);
+            });
+        }
+    }
 }
 
-function updateKurumsalContent(kurumsal) {
+function updateKurumsalContent(kurumsal, services) {
     if (!kurumsal) return;
 
     // Update about section
@@ -225,30 +248,61 @@ function updateKurumsalContent(kurumsal) {
         }
     }
 
-    // Update stats
+    // Update stats dynamically
     if (kurumsal.stats) {
-        const statItems = document.querySelectorAll('.stat-item');
-        kurumsal.stats.forEach((stat, i) => {
-            if (statItems[i]) {
-                const num = statItems[i].querySelector('.stat-number');
-                const label = statItems[i].querySelector('.stat-label');
-                if (num) num.textContent = stat.number;
-                if (label) label.textContent = stat.label;
-            }
-        });
+        const statsGrid = document.getElementById('stats-grid');
+        if (statsGrid) {
+            statsGrid.innerHTML = '';
+            kurumsal.stats.forEach(stat => {
+                const item = document.createElement('div');
+                item.className = 'stat-item';
+                item.innerHTML = `
+                    <span class="stat-number">${escapeHtml(stat.number)}</span>
+                    <span class="stat-label">${escapeHtml(stat.label)}</span>
+                `;
+                statsGrid.appendChild(item);
+            });
+        }
     }
 
-    // Update mission/vision
+    // Update mission/vision dynamically
     if (kurumsal.missionVision) {
-        const mvCards = document.querySelectorAll('.mv-card');
-        kurumsal.missionVision.forEach((item, i) => {
-            if (mvCards[i]) {
-                const title = mvCards[i].querySelector('h3');
-                const desc = mvCards[i].querySelector('p');
-                if (title) title.textContent = item.title;
-                if (desc) desc.textContent = item.description;
-            }
-        });
+        const mvGrid = document.querySelector('.mv-grid');
+        if (mvGrid) {
+            mvGrid.innerHTML = '';
+            kurumsal.missionVision.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'mv-card';
+                card.innerHTML = `
+                    <i class="${escapeHtml(item.icon)}"></i>
+                    <h3>${escapeHtml(item.title)}</h3>
+                    <p>${escapeHtml(item.description)}</p>
+                `;
+                mvGrid.appendChild(card);
+            });
+        }
+    }
+
+    // Update services dynamically (uses home.services data passed as parameter)
+    if (services && services.items) {
+        const servicesList = document.getElementById('services-list');
+        if (servicesList) {
+            servicesList.innerHTML = '';
+            services.items.forEach(service => {
+                const item = document.createElement('div');
+                item.className = 'service-item';
+                item.innerHTML = `
+                    <div class="service-icon">
+                        <i class="${escapeHtml(service.icon)}"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3>${escapeHtml(service.title)}</h3>
+                        <p>${escapeHtml(service.description)}</p>
+                    </div>
+                `;
+                servicesList.appendChild(item);
+            });
+        }
     }
 }
 
