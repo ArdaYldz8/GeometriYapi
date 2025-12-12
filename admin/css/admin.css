@@ -643,8 +643,43 @@ body {
     }
 }
 
-/* Responsive */
+/* ========================================
+   MOBILE RESPONSIVE
+   ======================================== */
+
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--admin-primary);
+    cursor: pointer;
+    padding: 10px;
+}
+
+/* Mobile Overlay */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 90;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+/* Tablet Breakpoint */
 @media (max-width: 992px) {
+    .mobile-menu-toggle {
+        display: block;
+    }
+
     .sidebar {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
@@ -660,5 +695,236 @@ body {
 
     .form-grid {
         grid-template-columns: 1fr;
+    }
+
+    .content-header {
+        padding: 15px 20px;
+    }
+
+    .content-header h1 {
+        font-size: 18px;
+    }
+
+    .content-body {
+        padding: 20px;
+    }
+
+    .header-actions {
+        gap: 10px;
+    }
+
+    .btn-preview,
+    .btn-save {
+        padding: 8px 15px;
+        font-size: 13px;
+    }
+
+    .btn-preview span {
+        display: none;
+    }
+}
+
+/* Mobile Breakpoint */
+@media (max-width: 576px) {
+    .login-box {
+        padding: 30px 20px;
+        margin: 15px;
+        border-radius: 8px;
+    }
+
+    .login-header h1 {
+        font-size: 20px;
+    }
+
+    .login-header i {
+        font-size: 40px;
+    }
+
+    .content-header {
+        padding: 12px 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .content-header h1 {
+        font-size: 16px;
+        order: 2;
+        flex: 1;
+    }
+
+    .mobile-menu-toggle {
+        order: 1;
+    }
+
+    .header-actions {
+        order: 3;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .btn-preview {
+        display: none;
+    }
+
+    .btn-save {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .content-body {
+        padding: 15px;
+    }
+
+    .card {
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+    }
+
+    .card h3 {
+        font-size: 16px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .item-card {
+        padding: 15px;
+    }
+
+    .item-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .item-card-header h4 {
+        font-size: 14px;
+    }
+
+    .btn-delete {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-add {
+        width: 100%;
+        justify-content: center;
+        padding: 14px;
+    }
+
+    .images-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .upload-area {
+        padding: 30px 15px;
+    }
+
+    .upload-area i {
+        font-size: 36px;
+    }
+
+    .upload-area p {
+        font-size: 13px;
+    }
+
+    .modal-content {
+        width: 95%;
+        max-height: 90vh;
+        margin: 10px;
+    }
+
+    .modal-header {
+        padding: 15px;
+    }
+
+    .modal-header h2 {
+        font-size: 16px;
+    }
+
+    .modal-body {
+        padding: 15px;
+    }
+
+    .toast {
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        text-align: center;
+    }
+
+    /* Image selector for mobile */
+    .image-selector {
+        flex-direction: column;
+    }
+
+    .btn-select-image {
+        padding: 12px;
+        width: 100%;
+    }
+
+    /* Sidebar mobile adjustments */
+    .sidebar {
+        width: 280px;
+    }
+
+    .sidebar-header {
+        padding: 20px 15px;
+    }
+
+    .sidebar-header h2 {
+        font-size: 18px;
+    }
+
+    .nav-item {
+        padding: 12px 15px;
+    }
+
+    .sidebar-footer {
+        padding: 15px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .nav-item {
+        padding: 16px 20px;
+    }
+
+    .btn-login,
+    .btn-save,
+    .btn-add,
+    .btn-delete {
+        min-height: 48px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        min-height: 48px;
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+    }
+
+    .image-item .image-overlay,
+    .image-item .delete-image {
+        opacity: 1;
     }
 }
