@@ -1,12 +1,16 @@
 const jwt = require('jsonwebtoken');
-const { getCorsHeaders, checkRequiredEnvVars } = require('./utils/security');
+const { createClient } = require('@supabase/supabase-js');
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'geometri-yapi-jwt-secret-2024';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
-// In-memory content storage (will reset on cold start, but works for testing)
-let storedContent = null;
+// Initialize Supabase client
+const supabase = SUPABASE_URL && SUPABASE_KEY
+    ? createClient(SUPABASE_URL, SUPABASE_KEY)
+    : null;
 
-// Default content structure
+// Default content structure (used as fallback)
 const defaultContent = {
     "site": {
         "title": "GEOMETRİ YAPI",
@@ -29,6 +33,14 @@ const defaultContent = {
             "buttonText": "PROJELER",
             "buttonLink": "projeler.html",
             "backgroundImage": "images/hero1.jpg"
+        },
+        "services": {
+            "sectionTitle": "HİZMETLERİMİZ",
+            "items": [
+                { "icon": "fas fa-drafting-compass", "title": "İnşaat Proje", "description": "Metraj, Keşif, İhale Teklif Dosyası ve Teknik Şartname Hazırlanması" },
+                { "icon": "fas fa-hard-hat", "title": "İnşaat Uygulama", "description": "Birim Fiyat Analizleri, İş Programı ve Proje Yönetimi" },
+                { "icon": "fas fa-building", "title": "Mimari Tasarım", "description": "Modern ve fonksiyonel mimari çözümler" }
+            ]
         },
         "about": {
             "subtitle": "HAKKIMIZDA",
@@ -97,10 +109,6 @@ function verifyToken(authHeader) {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return null;
     }
-    if (!JWT_SECRET) {
-        console.error('CRITICAL: JWT_SECRET not configured');
-        return null;
-    }
     try {
         const token = authHeader.substring(7);
         return jwt.verify(token, JWT_SECRET);
@@ -109,31 +117,57 @@ function verifyToken(authHeader) {
     }
 }
 
-// Input validation for content
-function validateContent(content) {
-    if (!content || typeof content !== 'object') {
-        return { valid: false, error: 'Geçersiz içerik formatı' };
+// Get content from Supabase
+async function getContent() {
+    if (!supabase) {
+        console.log('Supabase not configured, using default content');
+        return defaultContent;
     }
 
-    // Site validation
-    if (content.site) {
-        if (content.site.email && !content.site.email.includes('@')) {
-            return { valid: false, error: 'Geçersiz e-posta formatı' };
+    try {
+        const { data, error } = await supabase
+            .from('site_content')
+            .select('content')
+            .eq('id', 1)
+            .single();
+
+        if (error || !data) {
+            console.log('No content in Supabase, using default');
+            return defaultContent;
         }
-        if (content.site.phone && !/^[\d\s+\-()]+$/.test(content.site.phone)) {
-            return { valid: false, error: 'Geçersiz telefon formatı' };
-        }
-        // Limit string lengths to prevent abuse
-        if (content.site.title && content.site.title.length > 100) {
-            return { valid: false, error: 'Site başlığı çok uzun (max 100 karakter)' };
-        }
+
+        return data.content;
+    } catch (error) {
+        console.error('Supabase read error:', error);
+        return defaultContent;
+    }
+}
+
+// Save content to Supabase
+async function saveContent(content) {
+    if (!supabase) {
+        throw new Error('Supabase not configured');
     }
 
-    return { valid: true };
+    const { data, error } = await supabase
+        .from('site_content')
+        .upsert({ id: 1, content: content, updated_at: new Date().toISOString() })
+        .select();
+
+    if (error) {
+        throw error;
+    }
+
+    return data;
 }
 
 exports.handler = async (event, context) => {
-    const headers = getCorsHeaders(event, ['GET', 'PUT', 'OPTIONS']);
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
+        'Content-Type': 'application/json'
+    };
 
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 200, headers, body: '' };
@@ -142,7 +176,7 @@ exports.handler = async (event, context) => {
     try {
         // GET - Read content (public)
         if (event.httpMethod === 'GET') {
-            const content = storedContent || defaultContent;
+            const content = await getContent();
             return {
                 statusCode: 200,
                 headers,
@@ -163,36 +197,17 @@ exports.handler = async (event, context) => {
                 };
             }
 
-            let newContent;
-            try {
-                newContent = JSON.parse(event.body);
-            } catch (parseError) {
-                return {
-                    statusCode: 400,
-                    headers,
-                    body: JSON.stringify({ error: 'Geçersiz JSON formatı' })
-                };
-            }
+            const newContent = JSON.parse(event.body);
 
-            // Validate content
-            const validation = validateContent(newContent);
-            if (!validation.valid) {
-                return {
-                    statusCode: 400,
-                    headers,
-                    body: JSON.stringify({ error: validation.error })
-                };
-            }
-
-            // Store in memory (will persist until cold start)
-            storedContent = newContent;
+            // Save to Supabase
+            await saveContent(newContent);
 
             return {
                 statusCode: 200,
                 headers,
                 body: JSON.stringify({
                     success: true,
-                    message: 'İçerik başarıyla güncellendi!'
+                    message: 'İçerik başarıyla kaydedildi!'
                 })
             };
         }
@@ -204,11 +219,11 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        console.error('Content error:', error.message);
+        console.error('Content error:', error);
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: 'Bir hata oluştu. Lütfen tekrar deneyin.' })
+            body: JSON.stringify({ error: 'Sunucu hatası: ' + error.message })
         };
     }
 };

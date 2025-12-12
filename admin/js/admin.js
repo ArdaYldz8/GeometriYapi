@@ -134,6 +134,9 @@ function setupEventListeners() {
 
     // Add stat button
     document.getElementById('addStatBtn')?.addEventListener('click', addStat);
+
+    // Add service button
+    document.getElementById('addServiceBtn')?.addEventListener('click', addService);
 }
 
 // ============================================
@@ -225,6 +228,7 @@ async function loadContent() {
         populateFields();
         renderProjects();
         renderStats();
+        renderServices();
     } catch (error) {
         console.error('Content load error:', error);
         showToast('İçerik yüklenemedi!', 'error');
@@ -283,6 +287,11 @@ async function saveContent() {
     // Collect stats
     if (contentData.kurumsal) {
         contentData.kurumsal.stats = collectStats();
+    }
+
+    // Collect services
+    if (contentData.home && contentData.home.services) {
+        contentData.home.services.items = collectServices();
     }
 
     try {
@@ -472,6 +481,85 @@ function deleteStat(index) {
 }
 
 // ============================================
+// SERVICES MANAGEMENT
+// ============================================
+
+function renderServices() {
+    const container = document.getElementById('services-container');
+    if (!container || !contentData.home || !contentData.home.services) return;
+
+    container.innerHTML = '';
+
+    if (!contentData.home.services.items) {
+        contentData.home.services.items = [];
+    }
+
+    contentData.home.services.items.forEach((service, index) => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+            <div class="item-card-header">
+                <h4>Hizmet ${index + 1}</h4>
+                <button type="button" class="btn-delete" onclick="deleteService(${index})">
+                    <i class="fas fa-trash"></i> Sil
+                </button>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>İkon (Font Awesome class)</label>
+                    <input type="text" class="service-icon" data-index="${index}" value="${escapeHtml(service.icon || 'fas fa-cog')}" placeholder="fas fa-cog">
+                </div>
+                <div class="form-group">
+                    <label>Başlık</label>
+                    <input type="text" class="service-title" data-index="${index}" value="${escapeHtml(service.title || '')}">
+                </div>
+                <div class="form-group full-width">
+                    <label>Açıklama</label>
+                    <textarea class="service-description" data-index="${index}" rows="2">${escapeHtml(service.description || '')}</textarea>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function collectServices() {
+    const services = [];
+    const titles = document.querySelectorAll('.service-title');
+
+    titles.forEach((titleEl, index) => {
+        services.push({
+            icon: document.querySelector(`.service-icon[data-index="${index}"]`)?.value || 'fas fa-cog',
+            title: titleEl.value,
+            description: document.querySelector(`.service-description[data-index="${index}"]`)?.value || ''
+        });
+    });
+
+    return services;
+}
+
+function addService() {
+    if (!contentData.home) contentData.home = {};
+    if (!contentData.home.services) contentData.home.services = { sectionTitle: 'HİZMETLERİMİZ', items: [] };
+    if (!contentData.home.services.items) contentData.home.services.items = [];
+
+    contentData.home.services.items.push({
+        icon: 'fas fa-cog',
+        title: 'Yeni Hizmet',
+        description: 'Hizmet açıklaması buraya gelecek.'
+    });
+
+    renderServices();
+}
+
+function deleteService(index) {
+    if (confirm('Bu hizmeti silmek istediğinize emin misiniz?')) {
+        contentData.home.services.items.splice(index, 1);
+        renderServices();
+    }
+}
+
+// ============================================
 // IMAGE MANAGEMENT
 // ============================================
 
@@ -646,5 +734,6 @@ function showToast(message, type = 'success') {
 // Make functions globally available
 window.deleteProject = deleteProject;
 window.deleteStat = deleteStat;
+window.deleteService = deleteService;
 window.deleteImage = deleteImage;
 window.openImagePicker = openImagePicker;
