@@ -586,20 +586,21 @@ function renderImageGrid(containerId, images, showDelete) {
     container.innerHTML = '';
 
     images.forEach(image => {
+        const imgUrl = image.url || image.path;
         const div = document.createElement('div');
         div.className = 'image-item';
         div.innerHTML = `
-            <img src="${image.path}" alt="${image.name}">
+            <img src="${imgUrl}" alt="${image.name}">
             <div class="image-overlay">${image.name}</div>
-            ${showDelete && image.folder === 'uploads' ? `
-                <button class="delete-image" onclick="deleteImage('${image.folder}', '${image.name}')">
+            ${showDelete && image.folder === 'cloudinary' ? `
+                <button class="delete-image" onclick="deleteImage('${image.publicId}')">
                     <i class="fas fa-times"></i>
                 </button>
             ` : ''}
         `;
 
         if (!showDelete) {
-            div.addEventListener('click', () => selectImage(image.path));
+            div.addEventListener('click', () => selectImage(imgUrl));
         }
 
         container.appendChild(div);
@@ -664,15 +665,17 @@ async function handleFileUpload(file) {
     reader.readAsDataURL(file);
 }
 
-async function deleteImage(folder, filename) {
+async function deleteImage(publicId) {
     if (!confirm('Bu görseli silmek istediğinize emin misiniz?')) return;
 
     try {
-        const response = await fetch(`${API_BASE}/images/${folder}/${filename}`, {
+        const response = await fetch(`${API_BASE}/images`, {
             method: 'DELETE',
             headers: {
+                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`
-            }
+            },
+            body: JSON.stringify({ publicId })
         });
 
         const data = await response.json();

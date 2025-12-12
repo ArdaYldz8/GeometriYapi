@@ -1,7 +1,22 @@
 const jwt = require('jsonwebtoken');
+const cloudinary = require('cloudinary').v2;
 const { getCorsHeaders, checkRequiredEnvVars } = require('./utils/security');
 
 const JWT_SECRET = process.env.JWT_SECRET;
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Check if Cloudinary is configured
+function isCloudinaryConfigured() {
+    return process.env.CLOUDINARY_CLOUD_NAME &&
+        process.env.CLOUDINARY_API_KEY &&
+        process.env.CLOUDINARY_API_SECRET;
+}
 
 // Verify JWT token
 function verifyToken(authHeader) {
@@ -20,15 +35,15 @@ function verifyToken(authHeader) {
     }
 }
 
-// Static images list
+// Static fallback images
 const staticImages = [
-    { name: 'hero1.jpg', path: '/images/hero1.jpg', folder: 'images' },
-    { name: 'project1.jpg', path: '/images/project1.jpg', folder: 'images' },
-    { name: 'project2.jpg', path: '/images/project2.jpg', folder: 'images' },
-    { name: 'project3.jpg', path: '/images/project3.jpg', folder: 'images' },
-    { name: 'project4.jpg', path: '/images/project4.jpg', folder: 'images' },
-    { name: 'project5.jpg', path: '/images/project5.jpg', folder: 'images' },
-    { name: 'project6.jpg', path: '/images/project6.jpg', folder: 'images' }
+    { name: 'hero1.jpg', url: '/images/hero1.jpg', folder: 'local' },
+    { name: 'project1.jpg', url: '/images/project1.jpg', folder: 'local' },
+    { name: 'project2.jpg', url: '/images/project2.jpg', folder: 'local' },
+    { name: 'project3.jpg', url: '/images/project3.jpg', folder: 'local' },
+    { name: 'project4.jpg', url: '/images/project4.jpg', folder: 'local' },
+    { name: 'project5.jpg', url: '/images/project5.jpg', folder: 'local' },
+    { name: 'project6.jpg', url: '/images/project6.jpg', folder: 'local' }
 ];
 
 exports.handler = async (event, context) => {
@@ -39,13 +54,48 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        // GET - List all images (public)
+        // GET - List all images
         if (event.httpMethod === 'GET') {
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify(staticImages)
-            };
+            // If Cloudinary is not configured, return static images
+            if (!isCloudinaryConfigured()) {
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify(staticImages)
+                };
+            }
+
+            // List images from Cloudinary
+            try {
+                const result = await cloudinary.api.resources({
+                    type: 'upload',
+                    prefix: 'geometri-yapi/',
+                    max_results: 100
+                });
+
+                const cloudinaryImages = result.resources.map(img => ({
+                    name: img.public_id.split('/').pop(),
+                    url: img.secure_url,
+                    publicId: img.public_id,
+                    folder: 'cloudinary',
+                    width: img.width,
+                    height: img.height
+                }));
+
+                // Combine with static images
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify([...staticImages, ...cloudinaryImages])
+                };
+            } catch (cloudErr) {
+                console.error('Cloudinary list error:', cloudErr.message);
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify(staticImages)
+                };
+            }
         }
 
         // All other operations require auth
@@ -60,25 +110,114 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // POST - Upload image (placeholder - would need Cloudinary for real uploads)
+        // POST - Upload image to Cloudinary
         if (event.httpMethod === 'POST') {
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({
-                    success: true,
-                    message: 'Görsel yükleme özelliği henüz aktif değil. Mevcut görselleri kullanabilirsiniz.'
-                })
-            };
+            if (!isCloudinaryConfigured()) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({
+                        error: 'Cloudinary yapılandırılmamış. Lütfen env vars ekleyin.'
+                    })
+                };
+            }
+
+            try {
+                // Parse the base64 image from request body
+                const body = JSON.parse(event.body || '{}');
+
+                if (!body.image) {
+                    return {
+                        statusCode: 400,
+                        headers,
+                        body: JSON.stringify({ error: 'Görsel verisi gerekli' })
+                    };
+                }
+
+                // Upload to Cloudinary
+                const uploadResult = await cloudinary.uploader.upload(body.image, {
+                    folder: 'geometri-yapi',
+                    resource_type: 'image',
+                    transformation: [
+                        { quality: 'auto' },
+                        { fetch_format: 'auto' }
+                    ]
+                });
+
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify({
+                        success: true,
+                        message: 'Görsel başarıyla yüklendi!',
+                        image: {
+                            name: uploadResult.public_id.split('/').pop(),
+                            url: uploadResult.secure_url,
+                            publicId: uploadResult.public_id,
+                            folder: 'cloudinary',
+                            width: uploadResult.width,
+                            height: uploadResult.height
+                        }
+                    })
+                };
+            } catch (uploadErr) {
+                console.error('Upload error:', uploadErr.message);
+                return {
+                    statusCode: 500,
+                    headers,
+                    body: JSON.stringify({ error: 'Görsel yüklenirken hata oluştu: ' + uploadErr.message })
+                };
+            }
         }
 
-        // DELETE - Remove image
+        // DELETE - Remove image from Cloudinary
         if (event.httpMethod === 'DELETE') {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ error: 'Statik görseller silinemez' })
-            };
+            if (!isCloudinaryConfigured()) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: 'Cloudinary yapılandırılmamış' })
+                };
+            }
+
+            try {
+                const body = JSON.parse(event.body || '{}');
+
+                if (!body.publicId) {
+                    return {
+                        statusCode: 400,
+                        headers,
+                        body: JSON.stringify({ error: 'Görsel ID gerekli' })
+                    };
+                }
+
+                // Only allow deleting Cloudinary images (not static)
+                if (!body.publicId.startsWith('geometri-yapi/')) {
+                    return {
+                        statusCode: 400,
+                        headers,
+                        body: JSON.stringify({ error: 'Statik görseller silinemez' })
+                    };
+                }
+
+                await cloudinary.uploader.destroy(body.publicId);
+
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify({
+                        success: true,
+                        message: 'Görsel silindi'
+                    })
+                };
+            } catch (deleteErr) {
+                console.error('Delete error:', deleteErr.message);
+                return {
+                    statusCode: 500,
+                    headers,
+                    body: JSON.stringify({ error: 'Görsel silinirken hata oluştu' })
+                };
+            }
         }
 
         return {
