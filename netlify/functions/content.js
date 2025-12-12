@@ -136,6 +136,12 @@ async function getContent() {
             return defaultContent;
         }
 
+        // Check if content is empty object
+        if (!data.content || Object.keys(data.content).length === 0) {
+            console.log('Content is empty, using default');
+            return defaultContent;
+        }
+
         return data.content;
     } catch (error) {
         console.error('Supabase read error:', error);
