@@ -80,9 +80,11 @@ async function loadSiteContent() {
         switch (currentPage) {
             case 'index':
                 updateHomeContent(content.home, content.projeler);
+                updateStats(content.kurumsal?.stats);
                 break;
             case 'kurumsal':
                 updateKurumsalContent(content.kurumsal);
+                updateStats(content.kurumsal?.stats);
                 break;
             case 'projeler':
                 updateProjelerContent(content.projeler);
@@ -344,4 +346,24 @@ function setupProjectFilters() {
             });
         });
     }
+}
+
+// Update stats dynamically
+function updateStats(stats) {
+    const statsGrid = document.getElementById('stats-grid');
+    if (!statsGrid || !stats || !Array.isArray(stats)) return;
+
+    // Clear existing stats
+    statsGrid.innerHTML = '';
+
+    // Add stats from API
+    stats.forEach(stat => {
+        const statItem = document.createElement('div');
+        statItem.className = 'stat-item';
+        statItem.innerHTML = `
+            <span class="stat-number">${stat.number || '0'}</span>
+            <span class="stat-label">${stat.label || ''}</span>
+        `;
+        statsGrid.appendChild(statItem);
+    });
 }
