@@ -32,6 +32,30 @@ body {
     overflow-x: hidden;
 }
 
+/* Dynamic content loading - prevent flash of old content */
+.hero-content,
+.about-preview-text,
+.about-content,
+.stats-grid,
+.services-grid,
+.mv-grid,
+.services-list,
+.footer-col .contact-list {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+body.content-loaded .hero-content,
+body.content-loaded .about-preview-text,
+body.content-loaded .about-content,
+body.content-loaded .stats-grid,
+body.content-loaded .services-grid,
+body.content-loaded .mv-grid,
+body.content-loaded .services-list,
+body.content-loaded .footer-col .contact-list {
+    opacity: 1;
+}
+
 a {
     text-decoration: none;
     color: inherit;

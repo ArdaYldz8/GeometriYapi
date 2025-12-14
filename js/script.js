@@ -64,6 +64,7 @@ async function loadSiteContent() {
         }
         if (!response.ok) {
             console.log('API not available, using static content');
+            document.body.classList.add('content-loaded');
             return;
         }
 
@@ -94,8 +95,12 @@ async function loadSiteContent() {
                 break;
         }
 
+        // Mark content as loaded
+        document.body.classList.add('content-loaded');
+
     } catch (error) {
         console.log('Using static content:', error.message);
+        document.body.classList.add('content-loaded');
     }
 }
 
