@@ -258,6 +258,7 @@ async function loadContent() {
         renderProjects();
         renderStats();
         renderServices();
+        updateLogoPreview();
     } catch (error) {
         console.error('Content load error:', error);
         showToast('İçerik yüklenemedi!', 'error');
@@ -293,6 +294,31 @@ function setNestedValue(obj, path, value) {
         return current[key];
     }, obj);
     target[lastKey] = value;
+}
+
+function updateLogoPreview() {
+    const logoInput = document.getElementById('site-logoImage');
+    const logoPreview = document.getElementById('logo-preview');
+
+    if (logoInput && logoPreview) {
+        const logoUrl = logoInput.value;
+        if (logoUrl) {
+            logoPreview.src = logoUrl;
+            logoPreview.style.display = 'block';
+        } else {
+            logoPreview.style.display = 'none';
+        }
+
+        // Update preview when input changes
+        logoInput.addEventListener('input', function () {
+            if (this.value) {
+                logoPreview.src = this.value;
+                logoPreview.style.display = 'block';
+            } else {
+                logoPreview.style.display = 'none';
+            }
+        });
+    }
 }
 
 async function saveContent() {

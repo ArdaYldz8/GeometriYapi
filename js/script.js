@@ -119,9 +119,21 @@ function getCurrentPage() {
 function updateSiteContent(site) {
     if (!site) return;
 
-    // Update logo
-    const logos = document.querySelectorAll('.logo, .footer-logo');
-    logos.forEach(logo => {
+    // Update header logo
+    const headerLogos = document.querySelectorAll('header .logo');
+    headerLogos.forEach(logo => {
+        if (site.logoImage) {
+            // Use image logo
+            logo.innerHTML = `<img src="${site.logoImage}" alt="${site.title || 'GEOMETRİ YAPI'}" height="40">`;
+        } else {
+            // Fallback to text logo
+            logo.textContent = site.title || 'GEOMETRİ YAPI';
+        }
+    });
+
+    // Update footer logo (text only)
+    const footerLogos = document.querySelectorAll('.footer-logo');
+    footerLogos.forEach(logo => {
         if (logo) logo.textContent = site.title || 'GEOMETRİ YAPI';
     });
 }

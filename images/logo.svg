@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+  <defs>
+    <!-- Premium gold gradient -->
+    <linearGradient id="luxuryGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#BF953F"/>
+      <stop offset="25%" style="stop-color:#FCF6BA"/>
+      <stop offset="50%" style="stop-color:#B38728"/>
+      <stop offset="75%" style="stop-color:#FBF5B7"/>
+      <stop offset="100%" style="stop-color:#AA771C"/>
+    </linearGradient>
+    <!-- Silver accent -->
+    <linearGradient id="silverAccent" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8E8E8"/>
+      <stop offset="50%" style="stop-color:#FFFFFF"/>
+      <stop offset="100%" style="stop-color:#C0C0C0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer frame - architectural precision -->
+  <rect x="8" y="8" width="34" height="34" fill="none" stroke="url(#luxuryGold)" stroke-width="1.5" rx="2"/>
+  
+  <!-- Inner geometric pattern - isometric building -->
+  <g fill="url(#luxuryGold)">
+    <!-- Left tower -->
+    <polygon points="14,38 14,20 19,17 19,38"/>
+    <!-- Center tower (taller) -->
+    <polygon points="21,38 21,14 26,10 31,14 31,38"/>
+    <!-- Right tower -->
+    <polygon points="33,38 33,22 38,19 38,38"/>
+  </g>
+  
+  <!-- Highlight lines for depth -->
+  <g fill="none" stroke="url(#silverAccent)" stroke-width="0.5">
+    <line x1="19" y1="17" x2="19" y2="38"/>
+    <line x1="26" y1="10" x2="26" y2="38"/>
+    <line x1="38" y1="19" x2="38" y2="38"/>
+  </g>
+  
+  <!-- Base line -->
+  <line x1="12" y1="40" x2="40" y2="40" stroke="url(#luxuryGold)" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Diamond crown -->
+  <polygon points="26,5 28,7 26,9 24,7" fill="url(#luxuryGold)"/>
+</svg>

@@ -15,6 +15,7 @@ const defaultContent = {
     "site": {
         "title": "GEOMETRİ YAPI",
         "logo": "GEOMETRİ YAPI",
+        "logoImage": "images/logo.svg",
         "phone": "+90 532 649 29 93",
         "email": "geometriyapi@gmail.com",
         "address": "Yıldız Turan Güneş Bulvarı 32/59 Çankaya, Ankara",
