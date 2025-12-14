@@ -136,7 +136,7 @@ function updateSiteContent(site) {
     footerLogos.forEach(logo => {
         if (site.logoImage) {
             // Use image logo
-            logo.innerHTML = `<img src="${site.logoImage}" alt="${site.title || 'GEOMETRİ YAPI'}" height="50">`;
+            logo.innerHTML = `<img src="${site.logoImage}" alt="${site.title || 'GEOMETRİ YAPI'}" height="35">`;
         } else {
             // Fallback to text logo
             logo.textContent = site.title || 'GEOMETRİ YAPI';
