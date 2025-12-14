@@ -52,7 +52,8 @@ header .logo,
 .footer-col,
 .footer-bottom {
     opacity: 0;
-    transition: opacity 0.3s ease;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 body.content-loaded header .logo,
@@ -73,6 +74,7 @@ body.content-loaded .footer-logo,
 body.content-loaded .footer-col,
 body.content-loaded .footer-bottom {
     opacity: 1;
+    visibility: visible;
 }
 
 a {
