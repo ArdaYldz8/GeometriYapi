@@ -33,6 +33,7 @@ body {
 }
 
 /* Dynamic content loading - prevent flash of old content */
+header .logo,
 .hero-content,
 .about-preview-text,
 .about-content,
@@ -45,6 +46,7 @@ body {
     transition: opacity 0.3s ease;
 }
 
+body.content-loaded header .logo,
 body.content-loaded .hero-content,
 body.content-loaded .about-preview-text,
 body.content-loaded .about-content,
