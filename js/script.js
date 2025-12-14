@@ -119,32 +119,9 @@ function getCurrentPage() {
 function updateSiteContent(site) {
     if (!site) return;
 
-    // Update logo image
-    const logoImgs = document.querySelectorAll('.logo-img');
-    const logoTexts = document.querySelectorAll('.logo-text');
-
-    if (site.logoUrl) {
-        logoImgs.forEach(img => {
-            img.src = site.logoUrl;
-            img.style.display = 'block';
-        });
-        logoTexts.forEach(text => {
-            text.style.display = 'none';
-        });
-    } else if (site.title) {
-        // Fallback to text if no logo image
-        logoImgs.forEach(img => {
-            img.style.display = 'none';
-        });
-        logoTexts.forEach(text => {
-            text.textContent = site.title;
-            text.style.display = 'inline';
-        });
-    }
-
-    // Update footer logo
-    const footerLogos = document.querySelectorAll('.footer-logo');
-    footerLogos.forEach(logo => {
+    // Update logo
+    const logos = document.querySelectorAll('.logo, .footer-logo');
+    logos.forEach(logo => {
         if (logo) logo.textContent = site.title || 'GEOMETRİ YAPI';
     });
 }
