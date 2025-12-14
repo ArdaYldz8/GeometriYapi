@@ -33,15 +33,23 @@ body {
 }
 
 /* Dynamic content loading - prevent flash of old content */
+/* Hide ALL admin-editable elements until API loads */
 header .logo,
 .hero-content,
 .about-preview-text,
+.about-preview-image,
 .about-content,
 .stats-grid,
 .services-grid,
-.mv-grid,
 .services-list,
-.footer-col .contact-list {
+.mv-grid,
+.projects-grid,
+.contact-info,
+.contact-form,
+.page-header h1,
+.footer-logo,
+.footer-col,
+.footer-bottom {
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -49,12 +57,19 @@ header .logo,
 body.content-loaded header .logo,
 body.content-loaded .hero-content,
 body.content-loaded .about-preview-text,
+body.content-loaded .about-preview-image,
 body.content-loaded .about-content,
 body.content-loaded .stats-grid,
 body.content-loaded .services-grid,
-body.content-loaded .mv-grid,
 body.content-loaded .services-list,
-body.content-loaded .footer-col .contact-list {
+body.content-loaded .mv-grid,
+body.content-loaded .projects-grid,
+body.content-loaded .contact-info,
+body.content-loaded .contact-form,
+body.content-loaded .page-header h1,
+body.content-loaded .footer-logo,
+body.content-loaded .footer-col,
+body.content-loaded .footer-bottom {
     opacity: 1;
 }
 
