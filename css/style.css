@@ -35,6 +35,7 @@ body {
 /* Dynamic content loading - prevent flash of old content */
 /* Hide ALL admin-editable elements until API loads */
 header .logo,
+.hero-slide,
 .hero-content,
 .about-preview-text,
 .about-preview-image,
@@ -55,6 +56,7 @@ header .logo,
 }
 
 body.content-loaded header .logo,
+body.content-loaded .hero-slide,
 body.content-loaded .hero-content,
 body.content-loaded .about-preview-text,
 body.content-loaded .about-preview-image,
