@@ -1,0 +1,89 @@
+/* ========================================
+   LOGO LOOP ANIMATION - Infinite Marquee
+   ======================================== */
+
+.logo-loop-section {
+    background: #f8f9fa;
+    padding: 40px 0;
+    overflow: hidden;
+}
+
+.logo-loop {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+
+.logo-loop__track {
+    display: flex;
+    animation: scroll-left 25s linear infinite;
+}
+
+.logo-loop__list {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.logo-loop__item {
+    flex-shrink: 0;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    filter: grayscale(100%);
+}
+
+.logo-loop__item:hover {
+    opacity: 1;
+    transform: scale(1.15);
+    filter: grayscale(0%);
+}
+
+.logo-loop__item img {
+    height: 60px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+}
+
+@keyframes scroll-left {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-25%);
+    }
+}
+
+/* Pause on hover */
+.logo-loop:hover .logo-loop__track {
+    animation-play-state: paused;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .logo-loop__item {
+        padding: 0 25px;
+    }
+
+    .logo-loop__item img {
+        height: 45px;
+    }
+
+    .logo-loop-section {
+        padding: 25px 0;
+    }
+
+    .logo-loop__track {
+        animation-duration: 18s;
+    }
+}
