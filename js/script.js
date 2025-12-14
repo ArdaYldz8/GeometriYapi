@@ -131,10 +131,16 @@ function updateSiteContent(site) {
         }
     });
 
-    // Update footer logo (text only)
+    // Update footer logo
     const footerLogos = document.querySelectorAll('.footer-logo');
     footerLogos.forEach(logo => {
-        if (logo) logo.textContent = site.title || 'GEOMETRİ YAPI';
+        if (site.logoImage) {
+            // Use image logo
+            logo.innerHTML = `<img src="${site.logoImage}" alt="${site.title || 'GEOMETRİ YAPI'}" height="50">`;
+        } else {
+            // Fallback to text logo
+            logo.textContent = site.title || 'GEOMETRİ YAPI';
+        }
     });
 }
 

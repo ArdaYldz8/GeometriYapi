@@ -101,7 +101,7 @@ const defaultContent = {
     },
     "footer": {
         "description": "Profesyonel mimarlık ve tasarım hizmetleri sunmaktayız.",
-        "copyright": "© 2024 Geometri YAPI. Tüm hakları saklıdır."
+        "copyright": "© 2025 Geometri YAPI"
     }
 };
 
