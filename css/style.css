@@ -796,6 +796,12 @@ footer .container {
     margin-bottom: 20px;
 }
 
+.footer-col .footer-logo img {
+    max-height: 40px;
+    width: auto;
+    display: block;
+}
+
 .footer-col p {
     color: var(--footer-text);
     font-size: 14px;
