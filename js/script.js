@@ -166,10 +166,16 @@ function updateHomeContent(home, projeler) {
         const heroTitle = document.querySelector('.hero-content h1');
         const heroSubtitle = document.querySelector('.hero-content p');
         const heroBtn = document.querySelector('.hero-content .btn');
+        const heroSlide = document.querySelector('.hero-slide');
 
         if (heroTitle) heroTitle.textContent = home.hero.title;
         if (heroSubtitle) heroSubtitle.textContent = home.hero.subtitle;
         if (heroBtn) heroBtn.textContent = home.hero.buttonText;
+
+        // Update hero background image
+        if (heroSlide && home.hero.backgroundImage) {
+            heroSlide.style.backgroundImage = `url('${home.hero.backgroundImage}')`;
+        }
     }
 
     // Update about section
