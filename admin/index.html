@@ -104,8 +104,18 @@
                         <h3><i class="fas fa-cog"></i> Genel Ayarlar</h3>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label>Site Başlığı / Logo</label>
+                                <label>Site Başlığı</label>
                                 <input type="text" id="site-title" data-path="site.title">
+                            </div>
+                            <div class="form-group">
+                                <label>Logo URL (Görsel)</label>
+                                <div class="image-selector">
+                                    <input type="text" id="site-logoUrl" data-path="site.logoUrl"
+                                        placeholder="/images/logo.png veya Cloudinary URL">
+                                    <button type="button" class="btn-select-image" data-target="site-logoUrl"><i
+                                            class="fas fa-image"></i></button>
+                                </div>
+                                <small style="color: #666; font-size: 12px;">Logo görselini seçin veya URL girin</small>
                             </div>
                             <div class="form-group">
                                 <label>Telefon</label>

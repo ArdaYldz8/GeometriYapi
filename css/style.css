@@ -110,6 +110,20 @@ header .container {
     color: var(--text-light);
     letter-spacing: 1px;
     text-transform: uppercase;
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    max-height: 50px;
+    width: auto;
+}
+
+.logo-text {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-light);
+    letter-spacing: 1px;
 }
 
 .main-nav ul {
