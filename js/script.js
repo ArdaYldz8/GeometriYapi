@@ -55,16 +55,37 @@ document.addEventListener('DOMContentLoaded', function () {
 // DYNAMIC CONTENT LOADING
 // ============================================
 
+// Timeout wrapper for fetch
+function fetchWithTimeout(url, timeout = 5000) {
+    return Promise.race([
+        fetch(url),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), timeout)
+        )
+    ]);
+}
+
 async function loadSiteContent() {
+    // Show static content immediately, then update with API data
+    document.body.classList.add('content-loaded');
+
     try {
-        // Try Netlify Functions API first, fallback to local API
-        let response = await fetch('/.netlify/functions/content');
-        if (!response.ok) {
-            response = await fetch('/api/content');
+        // Try Netlify Functions API with 5 second timeout
+        let response;
+        try {
+            response = await fetchWithTimeout('/.netlify/functions/content', 5000);
+        } catch (e) {
+            console.log('Netlify API timeout/error, trying local:', e.message);
+            try {
+                response = await fetchWithTimeout('/api/content', 3000);
+            } catch (e2) {
+                console.log('Local API also failed:', e2.message);
+                return; // Static content already shown
+            }
         }
-        if (!response.ok) {
+
+        if (!response || !response.ok) {
             console.log('API not available, using static content');
-            document.body.classList.add('content-loaded');
             return;
         }
 
@@ -95,12 +116,9 @@ async function loadSiteContent() {
                 break;
         }
 
-        // Mark content as loaded
-        document.body.classList.add('content-loaded');
-
     } catch (error) {
-        console.log('Using static content:', error.message);
-        document.body.classList.add('content-loaded');
+        console.log('Content loading error:', error.message);
+        // Static content already visible
     }
 }
 
