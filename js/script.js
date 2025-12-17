@@ -55,6 +55,9 @@ document.addEventListener('DOMContentLoaded', function () {
 // DYNAMIC CONTENT LOADING
 // ============================================
 
+const CONTENT_CACHE_KEY = 'geometri_site_content';
+const CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+
 // Timeout wrapper for fetch
 function fetchWithTimeout(url, timeout = 5000) {
     return Promise.race([
@@ -65,60 +68,101 @@ function fetchWithTimeout(url, timeout = 5000) {
     ]);
 }
 
+// Get cached content from localStorage
+function getCachedContent() {
+    try {
+        const cached = localStorage.getItem(CONTENT_CACHE_KEY);
+        if (!cached) return null;
+
+        const { content, timestamp } = JSON.parse(cached);
+        // Check if cache is expired
+        if (Date.now() - timestamp > CACHE_EXPIRY_MS) {
+            localStorage.removeItem(CONTENT_CACHE_KEY);
+            return null;
+        }
+        return content;
+    } catch (e) {
+        return null;
+    }
+}
+
+// Save content to localStorage
+function setCachedContent(content) {
+    try {
+        localStorage.setItem(CONTENT_CACHE_KEY, JSON.stringify({
+            content: content,
+            timestamp: Date.now()
+        }));
+    } catch (e) {
+        console.log('Failed to cache content:', e.message);
+    }
+}
+
+// Apply content to page
+function applyContent(content) {
+    const currentPage = getCurrentPage();
+
+    updateSiteContent(content.site);
+    updateFooterContent(content.footer, content.site);
+
+    switch (currentPage) {
+        case 'index':
+            updateHomeContent(content.home, content.projeler);
+            updateStats(content.kurumsal?.stats);
+            break;
+        case 'kurumsal':
+            updateKurumsalContent(content.kurumsal, content.home?.services);
+            updateStats(content.kurumsal?.stats);
+            break;
+        case 'projeler':
+            updateProjelerContent(content.projeler);
+            break;
+        case 'iletisim':
+            updateIletisimContent(content.iletisim, content.site);
+            break;
+    }
+}
+
 async function loadSiteContent() {
-    // Show static content immediately, then update with API data
+    // Step 1: Load from cache IMMEDIATELY (no flash)
+    const cachedContent = getCachedContent();
+    if (cachedContent) {
+        applyContent(cachedContent);
+    }
+
+    // Show content (either cached or static)
     document.body.classList.add('content-loaded');
 
+    // Step 2: Fetch fresh content from API in background
     try {
-        // Try Netlify Functions API with 5 second timeout
         let response;
         try {
             response = await fetchWithTimeout('/.netlify/functions/content', 5000);
         } catch (e) {
-            console.log('Netlify API timeout/error, trying local:', e.message);
+            console.log('Netlify API timeout/error:', e.message);
             try {
                 response = await fetchWithTimeout('/api/content', 3000);
             } catch (e2) {
                 console.log('Local API also failed:', e2.message);
-                return; // Static content already shown
+                return;
             }
         }
 
         if (!response || !response.ok) {
-            console.log('API not available, using static content');
+            console.log('API not available');
             return;
         }
 
         const content = await response.json();
 
-        // Determine current page
-        const currentPage = getCurrentPage();
+        // Save to cache for next visit
+        setCachedContent(content);
 
-        // Update site-wide content
-        updateSiteContent(content.site);
-        updateFooterContent(content.footer, content.site);
-
-        // Update page-specific content
-        switch (currentPage) {
-            case 'index':
-                updateHomeContent(content.home, content.projeler);
-                updateStats(content.kurumsal?.stats);
-                break;
-            case 'kurumsal':
-                updateKurumsalContent(content.kurumsal, content.home?.services);
-                updateStats(content.kurumsal?.stats);
-                break;
-            case 'projeler':
-                updateProjelerContent(content.projeler);
-                break;
-            case 'iletisim':
-                updateIletisimContent(content.iletisim, content.site);
-                break;
-        }
+        // Apply fresh content (updates any changes)
+        applyContent(content);
 
     } catch (error) {
         console.log('Content loading error:', error.message);
-        // Static content already visible
     }
 }
 
