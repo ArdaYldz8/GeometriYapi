@@ -124,16 +124,18 @@ function applyContent(content) {
 }
 
 async function loadSiteContent() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
     // Step 1: Load from cache IMMEDIATELY (no flash)
     const cachedContent = getCachedContent();
     if (cachedContent) {
         applyContent(cachedContent);
+        // Hide loading overlay and show content
+        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+        document.body.classList.add('content-loaded');
     }
 
-    // Show content (either cached or static)
-    document.body.classList.add('content-loaded');
-
-    // Step 2: Fetch fresh content from API in background
+    // Step 2: Fetch fresh content from API
     try {
         let response;
         try {
@@ -144,12 +146,17 @@ async function loadSiteContent() {
                 response = await fetchWithTimeout('/api/content', 3000);
             } catch (e2) {
                 console.log('Local API also failed:', e2.message);
+                // Hide loading even if API fails
+                if (loadingOverlay) loadingOverlay.classList.add('hidden');
+                document.body.classList.add('content-loaded');
                 return;
             }
         }
 
         if (!response || !response.ok) {
             console.log('API not available');
+            if (loadingOverlay) loadingOverlay.classList.add('hidden');
+            document.body.classList.add('content-loaded');
             return;
         }
 
@@ -161,8 +168,14 @@ async function loadSiteContent() {
         // Apply fresh content (updates any changes)
         applyContent(content);
 
+        // Hide loading overlay and show content
+        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+        document.body.classList.add('content-loaded');
+
     } catch (error) {
         console.log('Content loading error:', error.message);
+        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+        document.body.classList.add('content-loaded');
     }
 }
 
